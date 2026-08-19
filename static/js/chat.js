@@ -1,0 +1,8 @@
+const chatForm = document.querySelector("#chat-form");
+if (chatForm) {
+  const messages = document.querySelector("#messages"); const input = document.querySelector("#message-input"); const send = document.querySelector("#send-button"); const error = document.querySelector("#chat-error"); const orb = document.querySelector("#ai-orb"); const status = document.querySelector("#orb-status");
+  const setState = (state, label) => { orb.dataset.state = state; status.textContent = label; };
+  const addMessage = (text, kind) => { const item = document.createElement("article"); item.className = `message ${kind}`; item.textContent = text; messages.append(item); item.scrollIntoView({ behavior: "smooth", block: "end" }); };
+  chatForm.addEventListener("submit", async (event) => { event.preventDefault(); const message = input.value.trim(); if (!message || send.disabled) return; error.textContent = ""; addMessage(message, "user"); input.value = ""; send.disabled = true; setState("thinking", "EduNex is thinking…"); try { const data = await window.EduNex.requestJson("/api/chat", { method: "POST", body: JSON.stringify({ message }) }); addMessage(data.response, "assistant"); setState("responding", "EduNex AI is responding"); window.setTimeout(() => setState("idle", "EduNex AI is ready"), 900); } catch (requestError) { error.textContent = requestError.message; setState("error", "AI service unavailable"); } finally { send.disabled = false; input.focus(); } });
+  document.querySelector("#clear-chat").addEventListener("click", async () => { try { await window.EduNex.requestJson("/api/chat/history", { method: "DELETE" }); } catch (_) {} messages.replaceChildren(); setState("idle", "EduNex AI is ready"); error.textContent = ""; });
+}

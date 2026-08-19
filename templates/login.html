@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EduNex AI | Secure sign in</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body class="space-page login-page">
+    <canvas class="starfield" aria-hidden="true"></canvas>
+    <main class="login-shell" aria-labelledby="page-title">
+      <section class="brand-intro">
+        <a class="brand" href="/">EDUNEX <span>AI</span></a>
+        <div class="ai-orb mini-orb" aria-hidden="true"><i></i><b></b></div>
+        <p class="kicker">Secure school access</p>
+        <h1 id="page-title">Your intelligent<br>school companion.</h1>
+        <p>Enter your demo account to connect with EduNex AI.</p>
+      </section>
+      <section class="login-card glass-panel" aria-label="Sign in">
+        <p class="eyebrow">Welcome back</p>
+        <h2>Sign in to EduNex</h2>
+        <form id="login-form" novalidate>
+          <label for="username">Username</label>
+          <input id="username" name="username" autocomplete="username" placeholder="Enter your username" required>
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+          <p id="login-error" class="error" role="alert"></p>
+          <button type="submit" class="primary-button">Enter workspace <span aria-hidden="true">↗</span></button>
+        </form>
+        <p class="hint">Credentials are configured locally. Your role is protected by your secure session.</p>
+      </section>
+    </main>
+    <script defer src="{{ url_for('static', filename='js/three-background.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>

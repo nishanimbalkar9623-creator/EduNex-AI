@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EduNex AI | Your intelligent school companion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body class="space-page dashboard-page">
+    <canvas class="starfield" aria-hidden="true"></canvas>
+    <main class="app-shell">
+      <header class="topbar glass-panel">
+        <a class="brand" href="/dashboard">EDUNEX <span>AI</span></a>
+        <nav aria-label="Primary navigation"><a class="active" href="#chat">Chat</a><a href="#overview">Dashboard</a><a href="#support">Support</a></nav>
+        <div class="identity"><strong>{{ user.name }}</strong><span>{{ user.role|title }}</span></div>
+        <button id="logout-button" class="text-button">Log out <span aria-hidden="true">↗</span></button>
+      </header>
+      <section class="experience" id="chat" aria-label="EduNex AI chat">
+        <div class="orb-stage" aria-live="polite"><div id="ai-orb" class="ai-orb" data-state="idle" aria-hidden="true"><i></i><b></b><em></em></div><p id="orb-status" class="orb-status">EduNex AI is ready</p></div>
+        <div class="hero-copy"><p class="kicker">Your intelligent school companion</p><h1>How can I help<br>you today?</h1><p>Ask a question, explore ideas, or get guidance for your school day.</p></div>
+        <div id="messages" class="messages" aria-live="polite" aria-label="Conversation"><article class="message assistant">Hello {{ user.name }}. I’m EduNex AI—your {{ user.role }} support companion. How can I help?</article></div>
+        <form id="chat-form" class="composer glass-panel"><label class="sr-only" for="message-input">Ask EduNex AI</label><input id="message-input" maxlength="1000" placeholder="Ask EduNex anything…" required autocomplete="off"><button type="button" class="voice-button" aria-label="Voice support coming soon" title="Voice support coming soon">◌</button><button id="send-button" type="submit" class="send-button" aria-label="Send message"><span aria-hidden="true">↑</span></button></form>
+        <p id="chat-error" class="chat-error" role="alert"></p><button class="clear-button" id="clear-chat" type="button">Clear conversation</button>
+      </section>
+      <section id="overview" class="overview-grid" aria-label="Workspace overview">
+        <article class="overview-card glass-panel"><span class="card-label">Authenticated workspace</span><strong>{{ user.role|title }}</strong><p>Your role comes from your secure session.</p></article>
+        <article class="overview-card glass-panel"><span class="card-label">School data</span><strong>Connecting soon</strong><p>Attendance and records are not available until their protected services are added.</p></article>
+        <article id="support" class="overview-card glass-panel"><span class="card-label">Human support</span><strong>Available soon</strong><p>Teacher and management request workflows will be introduced in a later phase.</p></article>
+      </section>
+    </main>
+    <script defer src="{{ url_for('static', filename='js/three-background.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/chat.js') }}"></script>
+  </body>
+</html>
