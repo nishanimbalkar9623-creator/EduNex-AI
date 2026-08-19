@@ -24,12 +24,13 @@ def get_llm() -> ChatOllama:
     """Create one reusable LangChain chat model per Flask app instance."""
     cached = current_app.extensions.get("edunex_llm")
     if cached is None:
+        timeout_sec = float(current_app.config.get("OLLAMA_TIMEOUT_SECONDS", 180.0))
         cached = ChatOllama(
             model=current_app.config["OLLAMA_MODEL"],
             base_url=current_app.config["OLLAMA_BASE_URL"],
             temperature=current_app.config["AI_TEMPERATURE"],
-            sync_client_kwargs={"timeout": current_app.config["OLLAMA_TIMEOUT_SECONDS"]},
-            async_client_kwargs={"timeout": current_app.config["OLLAMA_TIMEOUT_SECONDS"]},
+            sync_client_kwargs={"timeout": timeout_sec},
+            async_client_kwargs={"timeout": timeout_sec},
         )
         current_app.extensions["edunex_llm"] = cached
     return cached
@@ -40,7 +41,7 @@ def check_ollama_status() -> dict[str, Any]:
     base_url = current_app.config.get("OLLAMA_BASE_URL", "http://localhost:11434")
     model = current_app.config.get("OLLAMA_MODEL", "llama3.2")
     try:
-        with httpx.Client(timeout=3.0) as client:
+        with httpx.Client(timeout=5.0) as client:
             resp = client.get(f"{base_url}/api/tags")
             if resp.status_code == 200:
                 raw_models = resp.json().get("models", [])
@@ -55,19 +56,22 @@ def check_ollama_status() -> dict[str, Any]:
 def generate_response(user: dict[str, str], message: str, history: list[Any]) -> str:
     """Generate a response using role context and bounded session history."""
     messages = [SystemMessage(content=build_system_prompt(user)), *history, HumanMessage(content=message)]
-    try:
-        result = get_llm().invoke(messages)
-    except (httpx.HTTPError, ResponseError, OSError, ValueError) as error:
-        logger.warning("Ollama chat request failed: %s", error)
-        raise AIServiceUnavailable("EduNex AI is temporarily unable to connect to its AI service. Please make sure Ollama is running and try again.") from error
-    except Exception as error:
-        logger.exception("Unexpected exception while calling Ollama: %s", error)
-        raise AIServiceUnavailable("EduNex AI encountered an issue connecting to the AI service. Please make sure Ollama is running and try again.") from error
+    
+    last_error: Exception | None = None
+    for attempt in range(1, 3):
+        try:
+            result = get_llm().invoke(messages)
+            content = result.content
+            if isinstance(content, list):
+                content = " ".join(str(part.get("text", "")) if isinstance(part, dict) else str(part) for part in content)
+            response = str(content).strip()
+            if response:
+                return response
+        except (httpx.HTTPError, ResponseError, OSError, ValueError) as error:
+            logger.warning("Ollama chat request attempt %d failed: %s", attempt, error)
+            last_error = error
+        except Exception as error:
+            logger.exception("Unexpected exception while calling Ollama attempt %d: %s", attempt, error)
+            last_error = error
 
-    content = result.content
-    if isinstance(content, list):
-        content = " ".join(str(part.get("text", "")) if isinstance(part, dict) else str(part) for part in content)
-    response = str(content).strip()
-    if not response:
-        raise AIServiceUnavailable("EduNex AI could not generate a response. Please try again.")
-    return response
+    raise AIServiceUnavailable("EduNex AI is temporarily unable to connect to its AI service. Please make sure Ollama is running and try again.") from last_error

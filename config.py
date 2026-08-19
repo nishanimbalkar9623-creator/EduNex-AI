@@ -21,7 +21,7 @@ class Config:
     OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
     AI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.2"))
     AI_MAX_CONTEXT_MESSAGES = int(os.getenv("AI_MAX_CONTEXT_MESSAGES", "6"))
-    OLLAMA_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
+    OLLAMA_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180"))
     DEMO_ACCOUNTS = {
         "rahul": {
             "name": "Rahul",
